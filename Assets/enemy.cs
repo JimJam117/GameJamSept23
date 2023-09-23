@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class player : MonoBehaviour
+public class enemy : MonoBehaviour
 {
     Animator a;
     SpriteRenderer sr;
@@ -19,7 +19,8 @@ public class player : MonoBehaviour
     public GameObject activeHitbox;
 
     public bool isAnim = true;
-    public bool playerIsAttacking = false;
+    public bool enemyIsAttacking = false;
+    public bool attackCooldown = false;
 
 
     public enum AngleDirection
@@ -49,25 +50,35 @@ public class player : MonoBehaviour
     void Update()
     {
         setAngleDirection();
-        var PlayerMovement = new Vector2(Input.GetAxis("Horizontal") * 1, Input.GetAxis("Vertical") * 1);
+        var player = GameObject.FindWithTag("Player");
+        var diff_x = player.transform.position.x - this.gameObject.transform.position.x;
+        var diff_y = player.transform.position.y - this.gameObject.transform.position.y;
+        
+        var dist = Vector2.Distance(player.transform.position, this.gameObject.transform.position);
+
+        var attack_dist_reached = dist < 1.7f;
+
+        var enemyMovement = attack_dist_reached ? new Vector2(0,0) : new Vector2(diff_x, diff_y);
 
         transform.rotation = Quaternion.identity; // keep rotation as initial
 
-        rb.velocity = (100 * PlayerMovement * Time.deltaTime);
+        rb.velocity = (20 * enemyMovement * Time.deltaTime);
 
-        bool isPlayerMoving = PlayerMovement.x != 0 || PlayerMovement.y != 0;
+        bool isEnemyMoving = enemyMovement.x != 0 || enemyMovement.y != 0;
 
 
-        if (isPlayerMoving) {
-            angle = Mathf.Atan2(PlayerMovement.y, PlayerMovement.x) * Mathf.Rad2Deg;
+        if (isEnemyMoving)
+        {
+            angle = Mathf.Atan2(enemyMovement.y, enemyMovement.x) * Mathf.Rad2Deg;
             angle += 180.0f;
         }
 
-        if (Input.GetButtonDown("Fire1") && !playerIsAttacking)
+        if (attack_dist_reached && !enemyIsAttacking && !attackCooldown)
         {
             StartCoroutine(attack());
 
-            if (hasProjectlie) {
+            if (hasProjectlie)
+            {
                 Rigidbody2D clone = Instantiate(projectile, transform.position, transform.rotation);
 
                 Vector2 p_velocity = new Vector2(0, 0);
@@ -102,12 +113,15 @@ public class player : MonoBehaviour
                 }
                 clone.velocity = p_velocity;
             }
-            else {
+            else
+            {
                 var itemsInActiveHitbox = activeHitbox.GetComponent<playerAttackHitbox>().inHitbox;
-                if (itemsInActiveHitbox.Count != 0) {
+                if (itemsInActiveHitbox.Count != 0)
+                {
                     foreach (var item in itemsInActiveHitbox)
                     {
-                        if (item.GetComponent<damageable>()) {
+                        if (item.GetComponent<damageable>())
+                        {
                             item.GetComponent<damageable>().damage(10);
                         }
                     }
@@ -116,13 +130,14 @@ public class player : MonoBehaviour
 
         }
 
-       //Debug.Log("Angle:" + angle);
-    
-            playAnim(isPlayerMoving, ((int)currentAngleDirection)); 
-            setHitbox((int)currentAngleDirection);
+        //Debug.Log("Angle:" + angle);
+
+        playAnim(isEnemyMoving, ((int)currentAngleDirection));
+        setHitbox((int)currentAngleDirection);
     }
 
-    void setAngleDirection() {
+    void setAngleDirection()
+    {
         if (angle >= 247.5f && angle <= 292.5f)
         {
             this.currentAngleDirection = AngleDirection.UP;
@@ -159,8 +174,9 @@ public class player : MonoBehaviour
         }
     }
 
-    void playAnim(bool isMoving, int id) {
-        if (playerIsAttacking)
+    void playAnim(bool isMoving, int id)
+    {
+        if (enemyIsAttacking)
             a.Play(attacks[id].name);
         else if (isMoving)
             a.Play(anims[id].name);
@@ -168,7 +184,8 @@ public class player : MonoBehaviour
             a.Play(stills[id].name);
     }
 
-    void setHitbox(int id) {
+    void setHitbox(int id)
+    {
         activeHitbox = hitboxes[id];
         foreach (var hitbox in hitboxes)
         {
@@ -177,9 +194,14 @@ public class player : MonoBehaviour
         //activeHitbox.gameObject.GetComponent<SpriteRenderer>().color = new Color(100, 100, 100, 100);
     }
 
-    IEnumerator attack() {
-        playerIsAttacking = true;
+    IEnumerator attack()
+    {
+        enemyIsAttacking = true;
+        attackCooldown = false;
         yield return new WaitForSeconds(hasProjectlie ? 1f : 0.1f);
-        playerIsAttacking = false;
+        enemyIsAttacking = false;
+        attackCooldown = true;
+        yield return new WaitForSeconds(hasProjectlie ? 1.2f : 0.9f);
+        attackCooldown = false;
     }
 }
