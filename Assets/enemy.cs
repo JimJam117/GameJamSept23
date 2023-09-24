@@ -18,9 +18,15 @@ public class enemy : MonoBehaviour
     public GameObject[] hitboxes;
     public GameObject activeHitbox;
 
+    public GameObject soulOrb;
+    public GameObject healthOrb;
+
+    public int health = 100;
+
     public bool isAnim = true;
     public bool enemyIsAttacking = false;
     public bool attackCooldown = false;
+    public bool isDying = false;
 
 
     public enum AngleDirection
@@ -50,91 +56,145 @@ public class enemy : MonoBehaviour
     void Update()
     {
         setAngleDirection();
-        var player = GameObject.FindWithTag("Player");
-        var diff_x = player.transform.position.x - this.gameObject.transform.position.x;
-        var diff_y = player.transform.position.y - this.gameObject.transform.position.y;
-        
-        var dist = Vector2.Distance(player.transform.position, this.gameObject.transform.position);
-
-        var attack_dist_reached = dist < 1.7f;
-
-        var enemyMovement = attack_dist_reached ? new Vector2(0,0) : new Vector2(diff_x, diff_y);
-
         transform.rotation = Quaternion.identity; // keep rotation as initial
 
-        rb.velocity = (20 * enemyMovement * Time.deltaTime);
-
-        bool isEnemyMoving = enemyMovement.x != 0 || enemyMovement.y != 0;
-
-
-        if (isEnemyMoving)
+        if (health <= 0 && !isDying)
         {
-            angle = Mathf.Atan2(enemyMovement.y, enemyMovement.x) * Mathf.Rad2Deg;
-            angle += 180.0f;
+            StartCoroutine("deathCoRoutine");
         }
-
-        if (attack_dist_reached && !enemyIsAttacking && !attackCooldown)
-        {
-            StartCoroutine(attack());
-
-            if (hasProjectlie)
+        else if (isDying) {
+            if (this.gameObject.GetComponent<SpriteRenderer>())
             {
-                Rigidbody2D clone = Instantiate(projectile, transform.position, transform.rotation);
-
-                Vector2 p_velocity = new Vector2(0, 0);
-                switch (currentAngleDirection)
-                {
-                    case AngleDirection.UP:
-                        p_velocity = new Vector2(0, 2);
-                        break;
-                    case AngleDirection.RIGHT_UP:
-                        p_velocity = new Vector2(1.5f, 1.5f);
-                        break;
-                    case AngleDirection.RIGHT:
-                        p_velocity = new Vector2(2, 0);
-                        break;
-                    case AngleDirection.RIGHT_DOWN:
-                        p_velocity = new Vector2(1.5f, -1.5f);
-                        break;
-                    case AngleDirection.DOWN:
-                        p_velocity = new Vector2(0, -2);
-                        break;
-                    case AngleDirection.LEFT_DOWN:
-                        p_velocity = new Vector2(-1.5f, -1.5f);
-                        break;
-                    case AngleDirection.LEFT:
-                        p_velocity = new Vector2(-2, 0);
-                        break;
-                    case AngleDirection.LEFT_UP:
-                        p_velocity = new Vector2(-1.5f, 1.5f);
-                        break;
-                    default:
-                        break;
-                }
-                clone.velocity = p_velocity;
+                this.gameObject.GetComponent<SpriteRenderer>().color = new Color(255, 0, 0);
             }
-            else
+            rb.velocity = new Vector2(0, 0);
+        }
+        else
+        {
+            
+            var player = GameObject.FindWithTag("Player");
+            var diff_x = player.transform.position.x - this.gameObject.transform.position.x;
+            var diff_y = player.transform.position.y - this.gameObject.transform.position.y;
+
+            var dist = Vector2.Distance(player.transform.position, this.gameObject.transform.position);
+
+            var attack_dist_reached = dist < 1.7f;
+
+            var enemyMovement = attack_dist_reached ? new Vector2(0, 0) : new Vector2(diff_x, diff_y);
+
+            rb.velocity = (20 * enemyMovement * Time.deltaTime);
+
+            bool isEnemyMoving = enemyMovement.x != 0 || enemyMovement.y != 0;
+
+
+            if (isEnemyMoving)
             {
-                var itemsInActiveHitbox = activeHitbox.GetComponent<playerAttackHitbox>().inHitbox;
-                if (itemsInActiveHitbox.Count != 0)
+                angle = Mathf.Atan2(enemyMovement.y, enemyMovement.x) * Mathf.Rad2Deg;
+                angle += 180.0f;
+            }
+
+            if (attack_dist_reached && !enemyIsAttacking && !attackCooldown)
+            {
+                StartCoroutine(attack());
+
+                if (hasProjectlie)
                 {
-                    foreach (var item in itemsInActiveHitbox)
+                    Rigidbody2D clone = Instantiate(projectile, transform.position, transform.rotation);
+
+                    Vector2 p_velocity = new Vector2(0, 0);
+                    switch (currentAngleDirection)
                     {
-                        if (item.GetComponent<damageable>())
+                        case AngleDirection.UP:
+                            p_velocity = new Vector2(0, 2);
+                            break;
+                        case AngleDirection.RIGHT_UP:
+                            p_velocity = new Vector2(1.5f, 1.5f);
+                            break;
+                        case AngleDirection.RIGHT:
+                            p_velocity = new Vector2(2, 0);
+                            break;
+                        case AngleDirection.RIGHT_DOWN:
+                            p_velocity = new Vector2(1.5f, -1.5f);
+                            break;
+                        case AngleDirection.DOWN:
+                            p_velocity = new Vector2(0, -2);
+                            break;
+                        case AngleDirection.LEFT_DOWN:
+                            p_velocity = new Vector2(-1.5f, -1.5f);
+                            break;
+                        case AngleDirection.LEFT:
+                            p_velocity = new Vector2(-2, 0);
+                            break;
+                        case AngleDirection.LEFT_UP:
+                            p_velocity = new Vector2(-1.5f, 1.5f);
+                            break;
+                        default:
+                            break;
+                    }
+                    clone.velocity = p_velocity;
+                }
+                else
+                {
+                    var itemsInActiveHitbox = activeHitbox.GetComponent<playerAttackHitbox>().inHitbox;
+                    if (itemsInActiveHitbox.Count != 0)
+                    {
+                        foreach (var item in itemsInActiveHitbox)
                         {
-                            item.GetComponent<damageable>().damage(10);
+                            if (item.GetComponent<player>())
+                            {
+                                item.GetComponent<player>().damage(10);
+                            }
                         }
                     }
                 }
+
             }
 
+            //Debug.Log("Angle:" + angle);
+
+            playAnim(isEnemyMoving, ((int)currentAngleDirection));
+            setHitbox((int)currentAngleDirection);
         }
 
-        //Debug.Log("Angle:" + angle);
 
-        playAnim(isEnemyMoving, ((int)currentAngleDirection));
-        setHitbox((int)currentAngleDirection);
+       
     }
+
+    public void damage(int amount)
+    {
+        if (!isDying) {
+            StartCoroutine(damageCoRoutine());
+            health -= amount;
+        }
+
+    }
+
+    IEnumerator damageCoRoutine()
+    {
+        if (this.gameObject.GetComponent<SpriteRenderer>())
+        {
+            this.gameObject.GetComponent<SpriteRenderer>().color = new Color(255, 0, 0);
+        }
+        yield return new WaitForSeconds(0.05f);
+        if (this.gameObject.GetComponent<SpriteRenderer>())
+        {
+            this.gameObject.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255);
+        }
+
+    }
+    IEnumerator deathCoRoutine()
+    {
+        isDying = true;
+        Instantiate(healthOrb, new Vector2(transform.position.x, transform.position.y - 1), transform.rotation);
+        Instantiate(healthOrb, new Vector2(transform.position.x, transform.position.y + 1), transform.rotation);
+        Instantiate(healthOrb, new Vector2(transform.position.x, transform.position.y), transform.rotation);
+        Instantiate(soulOrb, new Vector2(transform.position.x - 1, transform.position.y), transform.rotation);
+        Instantiate(soulOrb, new Vector2(transform.position.x + 1, transform.position.y), transform.rotation); 
+        yield return new WaitForSeconds(1.2f);
+        Destroy(this.gameObject);
+
+    }
+
 
     void setAngleDirection()
     {

@@ -9,6 +9,9 @@ public class player : MonoBehaviour
     Rigidbody2D rb;
     public float angle = 0;
 
+    public int health = 100;
+    public int soulJuice = 0;
+
     public Rigidbody2D projectile;
     public bool hasProjectlie = false;
 
@@ -48,6 +51,10 @@ public class player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (health <= 0) {
+            Destroy(this.gameObject);
+        }
+
         setAngleDirection();
         var PlayerMovement = new Vector2(Input.GetAxis("Horizontal") * 1, Input.GetAxis("Vertical") * 1);
 
@@ -107,8 +114,8 @@ public class player : MonoBehaviour
                 if (itemsInActiveHitbox.Count != 0) {
                     foreach (var item in itemsInActiveHitbox)
                     {
-                        if (item.GetComponent<damageable>()) {
-                            item.GetComponent<damageable>().damage(10);
+                        if (item.GetComponent<enemy>()) {
+                            item.GetComponent<enemy>().damage(10);
                         }
                     }
                 }
@@ -120,6 +127,64 @@ public class player : MonoBehaviour
     
             playAnim(isPlayerMoving, ((int)currentAngleDirection)); 
             setHitbox((int)currentAngleDirection);
+    }
+
+    public void damage(int amount)
+    {
+        StartCoroutine(damageCoRoutine());
+        health -= amount;
+    }
+
+    IEnumerator damageCoRoutine()
+    {
+        if (this.gameObject.GetComponent<SpriteRenderer>())
+        {
+            this.gameObject.GetComponent<SpriteRenderer>().color = new Color(255, 0, 0);
+        }
+        yield return new WaitForSeconds(0.05f);
+        if (this.gameObject.GetComponent<SpriteRenderer>())
+        {
+            this.gameObject.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255);
+        }
+
+    }
+
+    public void addHealth(int amount) {
+        StartCoroutine(addHealthCoRoutine());
+        health += amount;
+    }
+
+    IEnumerator addHealthCoRoutine()
+    {
+        if (this.gameObject.GetComponent<SpriteRenderer>())
+        {
+            this.gameObject.GetComponent<SpriteRenderer>().color = new Color(0, 255, 0);
+        }
+        yield return new WaitForSeconds(0.05f);
+        if (this.gameObject.GetComponent<SpriteRenderer>())
+        {
+            this.gameObject.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255);
+        }
+
+    }
+    public void addSoulJuice(int amount)
+    {
+        StartCoroutine(addSoulJuiceCoRoutine());
+        soulJuice += amount;
+    }
+
+    IEnumerator addSoulJuiceCoRoutine()
+    {
+        if (this.gameObject.GetComponent<SpriteRenderer>())
+        {
+            this.gameObject.GetComponent<SpriteRenderer>().color = new Color(0, 0, 255);
+        }
+        yield return new WaitForSeconds(0.05f);
+        if (this.gameObject.GetComponent<SpriteRenderer>())
+        {
+            this.gameObject.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255);
+        }
+
     }
 
     void setAngleDirection() {
