@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class player : MonoBehaviour
 {
@@ -11,6 +12,14 @@ public class player : MonoBehaviour
 
     public int health = 100;
     public int soulJuice = 0;
+    public int soulJuiceGoal = 100;
+
+    public int currentEnemyCount = 0;
+    public int desiredEnemyCount = 2;
+
+    public int spawn_altar_index = 0;
+    public GameObject[] spawn_altars;
+    public bool spawnCooldown = false;
 
     public Rigidbody2D projectile;
     public bool hasProjectlie = false;
@@ -23,6 +32,9 @@ public class player : MonoBehaviour
 
     public bool isAnim = true;
     public bool playerIsAttacking = false;
+    public bool isAscending = false;
+
+    public Sprite redTwist, stdTwist, none_sprite, upgrading_transition, you_died, return_to_main_menu_btn, next_level_btn;
 
 
     public enum AngleDirection
@@ -48,12 +60,57 @@ public class player : MonoBehaviour
         sr = GetComponent<SpriteRenderer>();
     }
 
+    public void returnToMainMenu() {
+        Destroy(this.gameObject);
+    }
+
+    public void nextLevel()
+    {
+        Destroy(this.gameObject);
+    }
+
+
     // Update is called once per frame
     void Update()
     {
-        if (health <= 0) {
-            Destroy(this.gameObject);
+
+
+        if (soulJuice >= soulJuiceGoal && health > 0)
+        {
+            GameObject.FindWithTag("threshold_msg").GetComponent<Image>().color = new Color(255, 255, 255, 255);
         }
+
+        else if (soulJuice >= soulJuiceGoal && health <= 0 && !isAscending)
+        {
+            isAscending = true;
+            StartCoroutine(ascend());
+        }
+
+        else if (soulJuice < soulJuiceGoal && health <= 0) {
+            StartCoroutine(death());
+        }
+
+
+        var twist = GameObject.FindWithTag("twist").transform;
+        twist.rotation = Quaternion.Euler(twist.eulerAngles.x, twist.eulerAngles.y, twist.eulerAngles.z + 1);
+
+
+
+        currentEnemyCount = GameObject.FindGameObjectsWithTag("enemy").Length;
+        spawn_altars = GameObject.FindGameObjectsWithTag("spawn_altar");
+
+        if (currentEnemyCount < desiredEnemyCount) {
+            spawn_altar_index++;
+            if (spawn_altar_index >= spawn_altars.Length) {
+                spawn_altar_index = 0;
+            }
+            //Debug.LogError(spawn_altar_index);
+            spawn_altars[spawn_altar_index].GetComponent<spawn_altar>().spawn();
+        }
+
+        GameObject.FindWithTag("healthUI").GetComponent<Text>().text = health.ToString();
+        GameObject.FindWithTag("soulJuiceUI").GetComponent<Text>().text = soulJuice.ToString();
+        GameObject.FindWithTag("soulJuiceNeededUI").GetComponent<Text>().text = soulJuiceGoal.ToString();
 
         setAngleDirection();
         var PlayerMovement = new Vector2(Input.GetAxis("Horizontal") * 1, Input.GetAxis("Vertical") * 1);
@@ -114,7 +171,7 @@ public class player : MonoBehaviour
                 if (itemsInActiveHitbox.Count != 0) {
                     foreach (var item in itemsInActiveHitbox)
                     {
-                        if (item.GetComponent<enemy>()) {
+                        if (item != null && item.GetComponent<enemy>()) {
                             item.GetComponent<enemy>().damage(10);
                         }
                     }
@@ -247,4 +304,34 @@ public class player : MonoBehaviour
         yield return new WaitForSeconds(hasProjectlie ? 1f : 0.1f);
         playerIsAttacking = false;
     }
+
+
+    IEnumerator ascend()
+    {
+        GameObject.FindWithTag("twist").GetComponent<Image>().sprite = stdTwist;
+        GameObject.FindWithTag("upgrading_transition").GetComponent<Image>().sprite = upgrading_transition;
+        GameObject.FindWithTag("you_died").GetComponent<Image>().sprite = none_sprite;
+        GameObject.FindWithTag("reincarnate_button").GetComponent<Image>().sprite = next_level_btn;
+        GameObject.FindWithTag("return_to_main_menu_button").GetComponent<Image>().sprite = none_sprite;
+
+        Destroy(GameObject.FindWithTag("return_to_main_menu_button"));
+        GameObject.FindWithTag("reincarnate_button").GetComponent<Button>().interactable = true;
+        yield return new WaitForSeconds(1f);
+    }
+
+    IEnumerator death()
+    {
+        GameObject.FindWithTag("twist").GetComponent<Image>().sprite = redTwist;
+        GameObject.FindWithTag("upgrading_transition").GetComponent<Image>().sprite = none_sprite;
+        GameObject.FindWithTag("you_died").GetComponent<Image>().sprite = you_died;
+
+        GameObject.FindWithTag("reincarnate_button").GetComponent<Image>().sprite = none_sprite;
+        GameObject.FindWithTag("return_to_main_menu_button").GetComponent<Image>().sprite = return_to_main_menu_btn;
+
+        Destroy(GameObject.FindWithTag("reincarnate_button"));
+        GameObject.FindWithTag("return_to_main_menu_button").GetComponent<Button>().interactable = true;
+        yield return new WaitForSeconds(1f);
+    }
+
+
 }

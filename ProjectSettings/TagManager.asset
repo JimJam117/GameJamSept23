@@ -5,6 +5,17 @@ TagManager:
   serializedVersion: 2
   tags:
   - damageable
+  - healthUI
+  - soulJuiceUI
+  - soulJuiceNeededUI
+  - enemy
+  - spawn_altar
+  - threshold_msg
+  - twist
+  - upgrading_transition
+  - you_died
+  - reincarnate_button
+  - return_to_main_menu_button
   layers:
   - Default
   - TransparentFX

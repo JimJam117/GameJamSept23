@@ -21,9 +21,9 @@ public class playerAttackHitbox : MonoBehaviour
 
 	void OnTriggerEnter2D(Collider2D other)
 	{
-        Debug.Log("TRIGGER ITEM");
+        //Debug.Log("TRIGGER ITEM");
         if (!inHitbox.Contains(other.gameObject)) {
-            Debug.Log("ADDED ITEM");
+            //Debug.Log("ADDED ITEM");
             inHitbox.Add(other.gameObject);
         }
 
@@ -33,7 +33,7 @@ public class playerAttackHitbox : MonoBehaviour
 	{
         if (inHitbox.Contains(other.gameObject))
         {
-            Debug.Log("ADDED ITEM");
+            //Debug.Log("ADDED ITEM");
             inHitbox.Remove(other.gameObject);
         }
 

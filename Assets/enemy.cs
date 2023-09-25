@@ -50,6 +50,7 @@ public class enemy : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         a = GetComponent<Animator>();
         sr = GetComponent<SpriteRenderer>();
+        StartCoroutine(attack());
     }
 
     // Update is called once per frame
@@ -140,7 +141,7 @@ public class enemy : MonoBehaviour
                     {
                         foreach (var item in itemsInActiveHitbox)
                         {
-                            if (item.GetComponent<player>())
+                            if (item != null && item.GetComponent<player>())
                             {
                                 item.GetComponent<player>().damage(10);
                             }

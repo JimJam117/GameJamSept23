@@ -1,19 +1,19 @@
 fileFormatVersion: 2
-guid: 6d1dbdd7e569c07459547e020a98a855
+guid: 55ca0e93f37d9d14993e22e091038aa8
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -6474883903819434044
-    second: explode_0
+      213: -4848329244456854130
+    second: spawn_0
   - first:
-      213: 4533101579054494224
-    second: explode_1
+      213: -1546701259444747284
+    second: spawn_1
   - first:
-      213: 2343961586841489315
-    second: explode_2
+      213: -8325665057775586849
+    second: spawn_2
   - first:
-      213: -3789942002723428665
-    second: explode_3
+      213: 4891953085760553096
+    second: spawn_3
   externalObjects: {}
   serializedVersion: 10
   mipmaps:
@@ -110,7 +110,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: explode_0
+      name: spawn_0
       rect:
         serializedVersion: 2
         x: 0
@@ -124,14 +124,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a05619750dc10e84985e99b39d5b1d8a
-      internalID: -6474883903819434044
+      spriteID: ee3232ff440fe5c4f9b881e482f5cbe1
+      internalID: -4848329244456854130
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: explode_1
+      name: spawn_1
       rect:
         serializedVersion: 2
         x: 32
@@ -145,14 +145,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f68ce13f0cac5e64c8f1c7b9f1035066
-      internalID: 4533101579054494224
+      spriteID: ac01ed6c0ba94da469d57c78bcc649f0
+      internalID: -1546701259444747284
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: explode_2
+      name: spawn_2
       rect:
         serializedVersion: 2
         x: 64
@@ -166,14 +166,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 72c017ca6a30a04408f07355c13d3fc0
-      internalID: 2343961586841489315
+      spriteID: 4e14c7d3200a2104a950e613e3b449fa
+      internalID: -8325665057775586849
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: explode_3
+      name: spawn_3
       rect:
         serializedVersion: 2
         x: 96
@@ -187,8 +187,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b00e536e022ed61459a44d6f5cb854e5
-      internalID: -3789942002723428665
+      spriteID: a62361282fc906a478fa60dd9d6ea89f
+      internalID: 4891953085760553096
       vertices: []
       indices: 
       edges: []
